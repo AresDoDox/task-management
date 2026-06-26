@@ -33,7 +33,7 @@ class User extends Authenticatable
     // Relationships
     public function projects()
     {
-        return $this->hasMany(Project::class);
+        return $this->hasMany(Project::class, 'owner_id');
     }
 
     public function assignedTasks()

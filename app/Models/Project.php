@@ -16,7 +16,7 @@ class Project extends Model
     // Relationships
     public function owner()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function members()
@@ -47,6 +47,6 @@ class Project extends Model
 
     public function isOwner(User $user)
     {
-        return $this->user_id === $user->id;
+        return $this->owner_id === $user->id;
     }
 }
