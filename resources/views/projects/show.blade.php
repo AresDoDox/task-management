@@ -25,10 +25,10 @@
             </div>
 
             <!-- Tasks Section -->
-            {{-- <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-semibold text-lg">Tasks</h3>
-                    <a href="{{ route('tasks.create', ['project' => $project->id]) }}"
+                    <a href="{{ route('projects.tasks.create', $project) }}"
                         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         Add Task
                     </a>
@@ -39,7 +39,7 @@
                 @else
                     <div class="space-y-4">
                         @foreach ($tasks as $task)
-                            <div class="border rounded-lg p-4 hover:shadow-lg transition">
+                            <div class="border rounded-lg p-4 hover:shadow-lg transition mb-2">
                                 <div class="flex justify-between items-start">
                                     <h4 class="font-semibold">{{ $task->title }}</h4>
                                     <span
@@ -50,13 +50,13 @@
                                         {{ ucfirst($task->priority) }}
                                     </span>
                                 </div>
-                                <a href="{{ route('tasks.show', $task) }}"
+                                <a href="{{ route('projects.tasks.show', [$task->project, $task]) }}"
                                     class="text-blue-600 hover:text-blue-800 text-sm">View Details →</a>
                             </div>
                         @endforeach
                     </div>
                 @endif
-            </div> --}}
+            </div>
         </div>
     </div>
 </x-app-layout>

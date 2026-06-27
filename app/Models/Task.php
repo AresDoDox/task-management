@@ -19,7 +19,8 @@ class Task extends Model
         'priority',
         'assigned_to',
         'category_id',
-        'due_date'
+        'due_date',
+        'created_by',
     ];
 
     protected $casts = [

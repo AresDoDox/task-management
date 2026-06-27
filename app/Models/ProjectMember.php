@@ -13,4 +13,15 @@ class ProjectMember extends Model
         'role',
         'joined_at',
     ];
+
+    // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }
