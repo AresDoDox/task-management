@@ -7,11 +7,9 @@
             @if ($project->isOwner(auth()->user()))
                 <div class="flex gap-2">
                     <a href="{{ route('projects.edit', $project) }}" class="text-blue-600 hover:text-blue-800">Edit</a>
-                    <form method="POST" action="{{ route('projects.destroy', $project) }}" style="display:inline;">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-800"
-                            onclick="return confirm('Sure?')">Delete</button>
-                    </form>
+                    <x-delete-confirm-modal :route="route('projects.destroy', $project)" :id="$project->id" :name="trim($project->name)">
+                        <button class="text-red-600 hover:text-red-900 ml-2">Delete</button>
+                    </x-delete-confirm-modal>
                 </div>
             @endif
         </div>
@@ -21,7 +19,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Project Info -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
-                <p class="text-gray-600">{{ $project->description }}</p>
+                <p class="text-gray-600">{!! nl2br(e($project->description)) !!}</p>
             </div>
 
             <!-- Tasks Section -->

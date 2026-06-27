@@ -24,7 +24,8 @@
                     @foreach ($projects as $project)
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-lg transition">
                             <h3 class="font-bold text-lg mb-2">{{ $project->name }}</h3>
-                            <p class="text-gray-600 text-sm mb-4">{{ $project->description }}</p>
+                            <p class="text-gray-600 text-sm mb-4">{!! nl2br(e($project->description)) !!}
+                            </p>
                             <div class="flex justify-between items-center">
                                 <span class="text-xs text-gray-500">{{ $project->tasks->count() }} tasks</span>
                                 <a href="{{ route('projects.show', $project) }}"
