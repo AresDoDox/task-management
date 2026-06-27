@@ -80,7 +80,7 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Task $task)
+    public function edit(Project $project, Task $task)
     {
         if (!$task->project->isMember(Auth::user())) {
             abort(403);
@@ -89,13 +89,13 @@ class TaskController extends Controller
         $categories = Auth::user()->categories;
         $members = $task->project->members()->with('user')->get();
 
-        return view('tasks.edit', compact('task', 'categories', 'members'));
+        return view('tasks.edit', compact('task', 'project', 'categories', 'members'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, Project $project, Task $task)
     {
         if (!$task->project->isMember(Auth::user())) {
             abort(403);
@@ -119,7 +119,7 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
+    public function destroy(Project $project, Task $task)
     {
         if (!$task->project->isMember(Auth::user())) {
             abort(403);
@@ -134,7 +134,7 @@ class TaskController extends Controller
     /**
      * Mark task as completed.
      */
-    public function complete(Task $task)
+    public function complete(Project $project, Task $task)
     {
         if (!$task->project->isMember(Auth::user())) {
             abort(403);

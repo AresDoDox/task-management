@@ -9,6 +9,7 @@ class ProjectMember extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'project_id',
         'user_id',
         'role',
         'joined_at',

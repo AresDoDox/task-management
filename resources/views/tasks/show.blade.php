@@ -7,12 +7,9 @@
             <div class="flex gap-2">
                 <a href="{{ route('projects.tasks.edit', [$task->project, $task]) }}"
                     class="text-blue-600 hover:text-blue-800">Edit</a>
-                <form method="POST" action="{{ route('projects.tasks.destroy', [$task->project, $task]) }}"
-                    style="display:inline;">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="text-red-600 hover:text-red-800"
-                        onclick="return confirm('Sure?')">Delete</button>
-                </form>
+                <x-delete-confirm-modal :route="route('projects.tasks.destroy', [$task->project, $task])" :id="$task->id" :name="trim($task->title)">
+                    <button class="text-red-600 hover:text-red-900 ml-2">Delete</button>
+                </x-delete-confirm-modal>
             </div>
         </div>
     </x-slot>
@@ -25,7 +22,8 @@
                     <!-- Description -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <h3 class="font-semibold mb-4">Description</h3>
-                        <p class="text-gray-600">{{ $task->description ?? 'No description' }}</p>
+                        <p class="text-gray-600">
+                            {!! $task->description ? nl2br(e($task->description)) : 'No description' !!}</p>
                     </div>
 
                     <!-- Subtasks -->
