@@ -46,6 +46,42 @@
                             </div>
                         </div>
                     @endif
+
+                    <!-- Comments -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <h3 class="font-semibold mb-4">Comments ({{ $task->comments->count() }})</h3>
+
+                        <!-- Add Comment Form -->
+                        <form method="POST" action="{{ route('comments.store', $task) }}" class="mb-6">
+                            @csrf
+                            <textarea name="content" placeholder="Add a comment..." rows="3"
+                                class="w-full rounded-md border-gray-300 shadow-sm" required></textarea>
+                            <button type="submit"
+                                class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Comment</button>
+                        </form>
+
+                        <!-- Comments List -->
+                        <div class="space-y-4">
+                            @foreach ($task->comments as $comment)
+                                <div class="border rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <strong>{{ $comment->user->name }}</strong>
+                                        <small
+                                            class="text-gray-500">{{ $comment->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    <p class="text-gray-600 text-sm mb-2">{!! nl2br(e($comment->content)) !!}</p>
+                                    @if ($comment->user_id === auth()->id() || $task->project->isOwner(auth()->user()))
+                                        <form method="POST" action="{{ route('comments.destroy', $comment) }}"
+                                            style="display:inline;">
+                                            @csrf @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Sidebar -->
