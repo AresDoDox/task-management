@@ -150,6 +150,14 @@
                         <p class="text-sm">{{ $task->assignee->name ?? 'Not assigned' }}</p>
                     </div>
 
+                    <!-- Category To -->
+                    @if ($task->category)
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-2">
+                            <h4 class="font-semibold mb-2">Category</h4>
+                            <p class="text-sm">{{ $task->category->name ?? 'Not assigned' }}</p>
+                        </div>
+                    @endif
+
                     <!-- Due Date -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-2">
                         <h4 class="font-semibold mb-2">Due Date</h4>
@@ -174,7 +182,6 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Toggle subtask completion
                 // Toggle subtask completion
                 document.querySelectorAll('.subtask-toggle').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {

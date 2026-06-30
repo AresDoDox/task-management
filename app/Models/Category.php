@@ -9,4 +9,21 @@ class Category extends Model
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
     use HasFactory;
+
+    protected $fillable = ['name', 'slug', 'color'];
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function isOwner(User $user)
+    {
+        return $this->user_id === $user->id;
+    }
 }
