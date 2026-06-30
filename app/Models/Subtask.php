@@ -9,4 +9,14 @@ class Subtask extends Model
 {
     /** @use HasFactory<\Database\Factories\SubtaskFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'is_completed',
+    ];
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class);
+    }
 }
