@@ -15,6 +15,10 @@ class ProjectMember extends Model
         'joined_at',
     ];
 
+    protected $casts = [
+        'joined_at' => 'datetime',
+    ];
+
     // Relationships
     public function user()
     {
