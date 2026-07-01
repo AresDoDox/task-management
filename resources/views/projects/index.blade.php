@@ -34,6 +34,11 @@
                         </div>
                     @endforeach
                 </div>
+
+                <!-- Pagination Links -->
+                <div class="mt-6">
+                    {{ $projects->links() }}
+                </div>
             @endif
         </div>
     </div>
