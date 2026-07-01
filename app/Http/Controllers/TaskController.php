@@ -31,7 +31,7 @@ class TaskController extends Controller
             abort(403);
         }
 
-        $categories = Auth::user()->categories();
+        $categories = Auth::user()->categories;
 
         $members = $project->members()->with('user')->get();
 

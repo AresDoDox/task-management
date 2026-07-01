@@ -14,7 +14,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Auth::user()->projects()->with('tasks')->get();
+        $projects = Auth::user()->projects()->with('tasks')->paginate(10);
         return view('projects.index', compact('projects'));
     }
 
@@ -60,7 +60,7 @@ class ProjectController extends Controller
             abort(403);
         }
 
-        $tasks = $project->tasks()->with(['assignee', 'creator', 'category'])->get();
+        $tasks = $project->tasks()->with(['assignee', 'creator', 'category'])->paginate(10);
         return view('projects.show', compact('project', 'tasks'));
     }
 

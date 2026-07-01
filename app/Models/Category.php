@@ -12,7 +12,7 @@ class Category extends Model
 
     protected $fillable = ['name', 'slug', 'color'];
 
-    public function owner()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
