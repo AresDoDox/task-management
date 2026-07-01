@@ -32,6 +32,97 @@
                     </a>
                 </div>
 
+                {{-- Filter Form --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
+                    <form method="GET" action="{{ route('projects.show', $project) }}" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Search -->
+                            <div>
+                                <input type="text" name="search" placeholder="Search tasks..."
+                                    value="{{ request('search') }}" class="w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div>
+                                <select name="status" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="">All Status</option>
+                                    <option value="todo" {{ request('status') === 'todo' ? 'selected' : '' }}>Todo
+                                    </option>
+                                    <option value="in_progress"
+                                        {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                    <option value="done" {{ request('status') === 'done' ? 'selected' : '' }}>Done
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Priority Filter -->
+                            <div>
+                                <select name="priority" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="">All Priority</option>
+                                    <option value="low" {{ request('priority') === 'low' ? 'selected' : '' }}>Low
+                                    </option>
+                                    <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>
+                                        Medium</option>
+                                    <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>High
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Assigned To Filter -->
+                            <div>
+                                <select name="assigned_to" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="">All Members</option>
+                                    @foreach ($project->members as $member)
+                                        <option value="{{ $member->user_id }}"
+                                            {{ request('assigned_to') == $member->user_id ? 'selected' : '' }}>
+                                            {{ $member->user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Category Filter -->
+                            <div>
+                                <select name="category" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="">All Categories</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}"
+                                            {{ request('category') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Sort -->
+                            <div>
+                                <select name="sort" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <option value="created_at"
+                                        {{ request('sort') === 'created_at' ? 'selected' : '' }}>Newest</option>
+                                    <option value="due_date" {{ request('sort') === 'due_date' ? 'selected' : '' }}>Due
+                                        Date</option>
+                                    <option value="priority" {{ request('sort') === 'priority' ? 'selected' : '' }}>
+                                        Priority</option>
+                                    <option value="title" {{ request('sort') === 'title' ? 'selected' : '' }}>Title
+                                        A-Z</option>
+                                </select>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex gap-2">
+                                <button type="submit"
+                                    class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    Filter
+                                </button>
+                                <a href="{{ route('projects.show', $project) }}"
+                                    class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 text-center">
+                                    Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
                 @if ($tasks->isEmpty())
                     <p class="text-gray-500">No tasks yet</p>
                 @else

@@ -54,14 +54,58 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Project $project)
+    public function show(Request $request, Project $project)
     {
         if (!$project->isMember(Auth::user())) {
             abort(403);
         }
 
-        $tasks = $project->tasks()->with(['assignee', 'creator', 'category'])->paginate(10);
-        return view('projects.show', compact('project', 'tasks'));
+        $query = $project->tasks()->with(['assignee', 'creator', 'category']);
+
+        // Search by title
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Filter by priority
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->input('priority'));
+        }
+
+        // Filter by assigned user
+        if ($request->filled('assigned_to')) {
+            $query->where('assigned_to', $request->input('assigned_to'));
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->input('category'));
+        }
+
+        // Filter by due date
+        if ($request->filled('due_date_from')) {
+            $query->whereDate('due_date', '>=', $request->input('due_date_from'));
+        }
+        if ($request->filled('due_date_to')) {
+            $query->whereDate('due_date', '<=', $request->input('due_date_to'));
+        }
+
+        // Sort
+        $sort = $request->input('sort', 'created_at');
+        $direction = $request->input('direction', 'desc');
+        $query->orderBy($sort, $direction);
+
+        $tasks = $query->paginate(15);
+        $categories = Auth::user()->categories()->get();
+
+        return view('projects.show', compact('project', 'tasks', 'categories'));
     }
 
     /**
