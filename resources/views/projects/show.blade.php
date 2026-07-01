@@ -6,6 +6,9 @@
             </h2>
             @if ($project->isOwner(auth()->user()))
                 <div class="flex gap-2">
+                    <a href="{{ route('projects.members', $project) }}"
+                        class="text-blue-600 hover:text-blue-800">Members</a>
+                    <span> | </span>
                     <a href="{{ route('projects.edit', $project) }}" class="text-blue-600 hover:text-blue-800">Edit</a>
                     <x-delete-confirm-modal :route="route('projects.destroy', $project)" :id="$project->id" :name="trim($project->name)">
                         <button class="text-red-600 hover:text-red-900 ml-2">Delete</button>

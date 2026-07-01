@@ -7,6 +7,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProjectMemberController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -37,6 +38,13 @@ Route::middleware('auth')->group(function () {
 
     // Category Routes
     Route::resource('categories', CategoryController::class);
+
+    // Project Member Routes
+    Route::get('/projects/{project}/members', [ProjectMemberController::class, 'index'])->name('projects.members');
+    Route::get('/projects/{project}/members/add', [ProjectMemberController::class, 'create'])->name('projects.members.create');
+    Route::post('/projects/{project}/members', [ProjectMemberController::class, 'store'])->name('projects.members.store');
+    Route::patch('/members/{member}', [ProjectMemberController::class, 'update'])->name('members.update');
+    Route::delete('/members/{member}', [ProjectMemberController::class, 'destroy'])->name('members.destroy');
 });
 
 require __DIR__ . '/auth.php';
