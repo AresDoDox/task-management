@@ -62,4 +62,74 @@ class Task extends Model
     {
         return $this->hasMany(Attachment::class);
     }
+
+    // Scopes
+
+    // Scope để tìm kiếm tasks theo tiêu đề
+    public function scopeSearchTask($query, $search)
+    {
+        return $query->where('title', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%");
+    }
+
+    // Scope để lọc tasks theo trạng thái
+    public function scopeFilterTaskByStatus($query, $status)
+    {
+        if (is_null($status)) {
+            return $query;
+        }
+
+        return $query->where('status', $status);
+    }
+
+    // Scope để lọc tasks theo mức độ ưu tiên
+    public function scopeFilterTaskByPriority($query, $priority)
+    {
+        if (is_null($priority)) {
+            return $query;
+        }
+
+        return $query->where('priority', $priority);
+    }
+
+    // Scope để lọc tasks theo người được giao
+    public function scopeFilterTaskByAssignedUser($query, $userId)
+    {
+        if (is_null($userId)) {
+            return $query;
+        }
+
+        return $query->where('assigned_to', $userId);
+    }
+
+    // Scope để lọc tasks theo danh mục
+    public function scopeFilterTaskByCategory($query, $categoryId)
+    {
+        if (is_null($categoryId)) {
+            return $query;
+        }
+
+        return $query->where('category_id', $categoryId);
+    }
+
+    // Scope để lọc tasks theo ngày hết hạn
+    public function scopeFilterTaskByDueDate($query, $from, $to)
+    {
+        if ($from) {
+            $query->whereDate('due_date', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('due_date', '<=', $to);
+        }
+        return $query;
+    }
+
+    // Scope để sắp xếp tasks theo [created_at, due_date, status, priority, title]
+    public function scopeSortTask($query, $sort = 'created_at', $direction = 'desc')
+    {
+        $allowedSorts = ['created_at', 'due_date', 'status', 'priority', 'title'];
+        $sortField = in_array($sort, $allowedSorts) ? $sort : 'created_at';
+
+        return $query->orderBy($sortField, $direction);
+    }
 }
