@@ -20,7 +20,7 @@ class ProjectPolicy
     // Kiểm tra user có thể view project không
     public function view(User $user, Project $project): bool
     {
-        return false;
+        return $project->isMember($user);
     }
 
     /**
