@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use App\Http\Requests\ProjectStoreRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -14,6 +15,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
+        // Lấy danh sách các dự án mà người dùng hiện tại là thành viên hoặc chủ sở hữu
+        // with('tasks') để lấy luôn danh sách các task liên quan đến project
         $projects = Auth::user()->projects()->with('tasks')->paginate(10);
         return view('projects.index', compact('projects'));
     }
@@ -23,24 +26,21 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create', Project::class);
         return view('projects.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProjectStoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'description' => 'nullable|string',
-        ]);
+        Gate::authorize('create', Project::class);
 
-        $project = Auth::user()->projects()->create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'slug' => Str::slug($validated['name']),
-        ]);
+        $validated = $request->validated();
+
+        // Tạo dự án mới và gán người dùng hiện tại làm chủ sở hữu
+        $project = Auth::user()->projects()->create($validated);
 
         // Tự động thêm creator vào project members
         $project->members()->create([
@@ -56,53 +56,31 @@ class ProjectController extends Controller
      */
     public function show(Request $request, Project $project)
     {
-        if (!$project->isMember(Auth::user())) {
-            abort(403);
-        }
+        // Kiểm tra quyền truy cập dự án
+        Gate::authorize('view', $project);
 
-        $query = $project->tasks()->with(['assignee', 'creator', 'category']);
+        // Lấy danh sách các task liên quan đến dự án, có thể lọc và sắp xếp theo các tham số từ request
+        // with(['project', 'assignee', 'creator', 'category']) để lấy luôn thông tin liên quan đến project, người được giao, người tạo và danh mục của task
+        $query = $project->tasks()->with(['project', 'assignee', 'creator', 'category']);
 
-        // Search by title
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where('title', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
-        }
-
-        // Filter by priority
-        if ($request->filled('priority')) {
-            $query->where('priority', $request->input('priority'));
-        }
-
-        // Filter by assigned user
-        if ($request->filled('assigned_to')) {
-            $query->where('assigned_to', $request->input('assigned_to'));
-        }
-
-        // Filter by category
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->input('category'));
-        }
-
-        // Filter by due date
-        if ($request->filled('due_date_from')) {
-            $query->whereDate('due_date', '>=', $request->input('due_date_from'));
-        }
-        if ($request->filled('due_date_to')) {
-            $query->whereDate('due_date', '<=', $request->input('due_date_to'));
-        }
-
-        // Sort
+        // Lấy các tham số lọc và sắp xếp từ request
+        $search = $request->input('search') ?? '';
+        $status = $request->input('status');
+        $priority = $request->input('priority');
+        $category_id = $request->input('category_id');
+        $assigned_to = $request->input('assigned_to');
         $sort = $request->input('sort', 'created_at');
-        $direction = $request->input('direction', 'desc');
-        $query->orderBy($sort, $direction);
+        $direction = 'desc';
 
-        $tasks = $query->paginate(15);
+
+        $tasks = $query->searchTask($search)
+            ->filterTaskByStatus($status)
+            ->filterTaskByPriority($priority)
+            ->filterTaskByCategory($category_id)
+            ->FilterTaskByAssignedUser($assigned_to)
+            ->sortTask($sort, $direction)
+            ->paginate(15);
+
         $categories = Auth::user()->categories()->get();
 
         return view('projects.show', compact('project', 'tasks', 'categories'));
@@ -113,9 +91,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        if (!$project->isOwner(Auth::user())) {
-            abort(403);
-        }
+        Gate::authorize('view', $project);
 
         return view('projects.edit', compact('project'));
     }
@@ -123,17 +99,13 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(ProjectStoreRequest $request, Project $project)
     {
-        if (!$project->isOwner(Auth::user())) {
-            abort(403);
-        }
+        Gate::authorize('update', $project);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'description' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
+        // Cập nhật thông tin dự án
         $project->update($validated);
 
         return redirect()->route('projects.show', $project)->with('success', 'Project updated successfully');
@@ -144,10 +116,10 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        if (!$project->isOwner(Auth::user())) {
-            abort(403);
-        }
+        Gate::authorize('delete', $project);
 
+        // Xóa dự án và tất cả các task liên quan
+        $project->tasks()->delete();
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
