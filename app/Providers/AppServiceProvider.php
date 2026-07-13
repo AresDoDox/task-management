@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Project;
 use App\Policies\ProjectPolicy;
+use App\Models\ProjectMember;
+use App\Policies\ProjectMemberPolicy;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Đăng ký policy cho model Project
         Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(ProjectMember::class, ProjectMemberPolicy::class);
     }
 }

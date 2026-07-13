@@ -7,6 +7,7 @@ use App\Models\ProjectMember;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Requests\ProjectMemberStoreRequrest;
 
 class ProjectMemberController extends Controller
 {
@@ -15,10 +16,7 @@ class ProjectMemberController extends Controller
      */
     public function index(Project $project)
     {
-        if (!$project->isMember(Auth::user())) {
-            abort(403);
-        }
-
+        // Lấy danh sách các thành viên của dự án, với thông tin người dùng liên quan
         $members = $project->members()->with('user')->paginate(10);
         return view('members.index', compact('project', 'members'));
     }
@@ -28,28 +26,20 @@ class ProjectMemberController extends Controller
      */
     public function create(Project $project)
     {
-        if (!$project->isOwner(Auth::user())) {
-            abort(403);
-        }
-
+        // Lấy danh sách các user chưa phải là thành viên của dự án để hiển thị trong form thêm thành viên
         $users = User::whereNotIn('id', $project->members()->pluck('user_id'))->get();
+
         return view('members.create', compact('project', 'users'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Project $project)
+    public function store(ProjectMemberStoreRequrest $request, Project $project)
     {
-        if (!$project->isOwner(Auth::user())) {
-            abort(403);
-        }
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id|unique:project_members,user_id,NULL,id,project_id,' . $project->id,
-            'role' => 'required|in:owner,member',
-        ]);
-
+        // Thêm thành viên vào dự án
         ProjectMember::create([
             'project_id' => $project->id,
             'user_id' => $validated['user_id'],
@@ -81,10 +71,7 @@ class ProjectMemberController extends Controller
      */
     public function update(Request $request, ProjectMember $member)
     {
-        if (!$member->project->isOwner(Auth::user()) || $member->user_id === Auth::id()) {
-            abort(403);
-        }
-
+        // Kiểm tra nếu member là owner thì không cho phép thay đổi role
         if ($member->role === 'owner') {
             abort(403, 'Cannot modify project owner');
         }
@@ -103,10 +90,7 @@ class ProjectMemberController extends Controller
      */
     public function destroy(ProjectMember $member)
     {
-        if (!$member->project->isOwner(Auth::user()) || $member->user_id === Auth::id()) {
-            abort(403);
-        }
-
+        // Kiểm tra nếu member là owner thì không cho phép xóa
         if ($member->role === 'owner') {
             abort(403, 'Cannot remove project owner');
         }

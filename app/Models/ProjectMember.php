@@ -20,11 +20,13 @@ class ProjectMember extends Model
     ];
 
     // Relationships
+    // Một project member thuộc về một user (Owner)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // Một project member thuộc về một project
     public function project()
     {
         return $this->belongsTo(Project::class);
